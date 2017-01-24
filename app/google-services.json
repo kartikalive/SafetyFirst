@@ -99,6 +99,30 @@
       },
       "oauth_client": [
         {
+          "client_id": "658105027609-v9uikbtn1k8g2o9ts2682ngq6o0gma3q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vikas.dtu.safetyfirst2",
+            "certificate_hash": "BFA50253EDF229E83075AC8EC41A2832865B0EBD"
+          }
+        },
+        {
+          "client_id": "658105027609-r5c9lltpcugemdenvtbfci8ioi18srvk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vikas.dtu.safetyfirst2",
+            "certificate_hash": "FE958BB5EC8297D7FAB7C44BF79369C70B63920D"
+          }
+        },
+        {
+          "client_id": "658105027609-5rtcebd6r4d50eigc1h7dmfejltigfvr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vikas.dtu.safetyfirst2",
+            "certificate_hash": "912F45713F0974B2D558E66E434F4EB21958A9EE"
+          }
+        },
+        {
           "client_id": "658105027609-osr3skit74bkbvvdr5svltc816kp4d5o.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
