@@ -77,7 +77,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.vikas.dtu.safetyfirst2.DashboardActivity" />
         </activity>
-
         <activity
             android:name=".mNewsActivity.NewsDetailActivity"
             android:label="News"
@@ -115,8 +114,8 @@
             android:label="@string/titleDiscussionActivity"
             android:parentActivityName=".DashboardActivity"
             android:screenOrientation="portrait">
-
-            <meta-data android:name="android.app.searchable"
+            <meta-data
+                android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
@@ -157,7 +156,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
-
         </activity>
         <activity android:name=".mSignUp.SignUpActivity" />
         <activity android:name=".NoNetworkConnection" />
@@ -202,6 +200,7 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
         <activity
             android:name=".TermsnCondition"
             android:label="Terms and Conditions"
@@ -211,66 +210,60 @@
         <meta-data
             android:name="android.support.PARENT_ACTIVITY"
             android:value="com.vikas.dtu.safetyfirst2.DashboardActivity" />
+
         <activity
             android:name=".Help"
             android:label="Help"
             android:parentActivityName=".DashboardActivity"
-            android:screenOrientation="portrait" >
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value="com.vikas.dtu.safetyfirst2.DashboardActivity" />
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.vikas.dtu.safetyfirst2.DashboardActivity" />
         </activity>
         <activity
             android:name=".FaqActivity"
             android:label="FAQs"
             android:parentActivityName=".DashboardActivity"
             android:screenOrientation="portrait">
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value="com.vikas.dtu.safetyfirst2.DashboardActivity" />
-        </activity>
-
-        <activity android:name=".mKnowIt.KnowItMain"
-            android:screenOrientation="portrait"
-            android:label="Know It"
-            android:parentActivityName=".DashboardActivity">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.vikas.dtu.safetyfirst2.DashboardActivity"/>
+                android:value="com.vikas.dtu.safetyfirst2.DashboardActivity" />
         </activity>
-
-
-        <activity android:name=".mKnowIt.KnowItSecond"
-            android:screenOrientation="portrait"
+        <activity
+            android:name=".mKnowIt.KnowItMain"
             android:label="Know It"
-            android:parentActivityName=".mKnowIt.KnowItMain">
-
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value="com.vikas.dtu.safetyfirst2.mKnowIt.KnowItMain"/>
-        </activity>
-
-
-        <activity android:name=".mKnowIt.KnowItThird"
-            android:screenOrientation="portrait"
-            android:label="Know It"
-            android:parentActivityName=".mKnowIt.KnowItSecond">
-
+            android:parentActivityName=".DashboardActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.vikas.dtu.safetyfirst2.mKnowIt.KnowItSecond"/>
+                android:value="com.vikas.dtu.safetyfirst2.DashboardActivity" />
         </activity>
-
-
-        <activity android:name="com.vikas.dtu.safetyfirst2.mKnowIt.KnowItFourth"
-            android:screenOrientation="portrait"
+        <activity
+            android:name=".mKnowIt.KnowItSecond"
             android:label="Know It"
-            android:parentActivityName="mKnowIt.KnowItThird">
-
+            android:parentActivityName=".mKnowIt.KnowItMain"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.vikas.dtu.safetyfirst2.mKnowIt.KnowItThird"/>
+                android:value="com.vikas.dtu.safetyfirst2.mKnowIt.KnowItMain" />
+        </activity>
+        <activity
+            android:name=".mKnowIt.KnowItThird"
+            android:label="Know It"
+            android:parentActivityName=".mKnowIt.KnowItSecond"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.vikas.dtu.safetyfirst2.mKnowIt.KnowItSecond" />
+        </activity>
+        <activity
+            android:name=".mKnowIt.KnowItFourth"
+            android:label="Know It"
+            android:parentActivityName="mKnowIt.KnowItThird"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.vikas.dtu.safetyfirst2.mKnowIt.KnowItThird" />
         </activity>
         <activity
             android:name=".mLaws.StateLaws.KarnatakaLaws"
@@ -382,7 +375,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.vikas.dtu.safetyfirst2.mLaws.ActivityLaws" />
         </activity>
-        <activity android:name=".mLaws.StateLaws.TelanganaLaws"
+        <activity
+            android:name=".mLaws.StateLaws.TelanganaLaws"
             android:label="Telangana"
             android:parentActivityName=".mLaws.ActivityLaws"
             android:screenOrientation="portrait">
@@ -392,8 +386,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.vikas.dtu.safetyfirst2.mLaws.ActivityLaws" />
         </activity>
-
-
+        <activity
+            android:name=".mDiscussion.NewCommentActivity"
+            android:label="@string/title_activity_new_comment"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.vikas.dtu.safetyfirst2.mDiscussion.PostDetailActivity" />
+        </activity>
     </application>
 
 </manifest>
