@@ -77,6 +77,7 @@ public class NewCommentActivity extends BaseActivity implements View.OnClickList
     private Button mItalicButton;
     private Button mUnderlineButton;
 
+    private String key = null;
     private String path;
     private Uri uriSavedImage;
     private String imagePath = null;
@@ -133,8 +134,9 @@ public class NewCommentActivity extends BaseActivity implements View.OnClickList
         switch (v.getId()) {
             case R.id.button_post_comment:
                 if (!mCommentField.getText().toString().trim().equals("")) {
+                    key = mCommentsReference.push().getKey();
                     postComment();
-                    if (imagePath != null) uploadImage();
+                    //if (imagePath != null) uploadImage();
                 } else
                     Toast.makeText(this, "Write valid answer.", Toast.LENGTH_SHORT).show();
                 break;
@@ -151,41 +153,41 @@ public class NewCommentActivity extends BaseActivity implements View.OnClickList
         }
     }
 
-    public void uploadImage() {
-        Uri file = Uri.fromFile(new File(imagePath));
-        /// upload destination. change according to your needs
-        UploadTask uploadTask = storage.getReferenceFromUrl(URL).child(getUid() + "/image/" + file.getLastPathSegment()).putFile(file);
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle unsuccessful uploads
-                Toast.makeText(getBaseContext(), "Failed", Toast.LENGTH_SHORT).show();
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-
-                Uri downloadUrl = taskSnapshot.getDownloadUrl();
-
-                downloadImageURL = String.valueOf(downloadUrl);
-                assert downloadUrl != null;
-                Toast.makeText(getBaseContext(), "Image Uploaded", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent();
-                intent.putExtra("DOWNLOAD_URI", downloadUrl);
-                setResult(RESULT_OK, intent);
-
-                Map<String, Object> imageAttach = new HashMap<>();
-                imageAttach.put("/posts/" + key + "/image/", downloadImageURL); // TODO : POSTS ?? Need to add comments
-                mDatabase.updateChildren(imageAttach);
-
-                pushNode(IMAGE_ATTACH, downloadImageURL);
-
-                finish();
-
-            }
-        });
-    }
+//    public void uploadImage() {
+//        Uri file = Uri.fromFile(new File(imagePath));
+//        /// upload destination. change according to your needs
+//        UploadTask uploadTask = storage.getReferenceFromUrl(URL).child(getUid() + "/image/" + file.getLastPathSegment()).putFile(file);
+//        uploadTask.addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception exception) {
+//                // Handle unsuccessful uploads
+//                Toast.makeText(getBaseContext(), "Failed", Toast.LENGTH_SHORT).show();
+//            }
+//        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+//            @Override
+//            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+//                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+//
+//                Uri downloadUrl = taskSnapshot.getDownloadUrl();
+//
+//                downloadImageURL = String.valueOf(downloadUrl);
+//                assert downloadUrl != null;
+//                Toast.makeText(getBaseContext(), "Image Uploaded", Toast.LENGTH_SHORT).show();
+//                Intent intent = new Intent();
+//                intent.putExtra("DOWNLOAD_URI", downloadUrl);
+//                setResult(RESULT_OK, intent);
+//
+//                Map<String, Object> imageAttach = new HashMap<>();
+//                imageAttach.put("/post-comments-new/" + mPostKey + "/image/", downloadImageURL); // TODO : POSTS ?? Need to add comments
+//                mDatabase.updateChildren(imageAttach);
+//
+//                pushNode(IMAGE_ATTACH, downloadImageURL);
+//
+//                finish();
+//
+//            }
+//        });
+//    }
 
     private void postComment() {
         mCommentButton.setClickable(false);
@@ -200,13 +202,11 @@ public class NewCommentActivity extends BaseActivity implements View.OnClickList
                         String authorName = user.username;
 
                         // Create new comment object
-//                        SpannedXhtmlGenerator htmlText = new SpannedXhtmlGenerator();
-//                        String commentText = htmlText.toXhtml(mCommentField.getText());
+                        SpannedXhtmlGenerator htmlText = new SpannedXhtmlGenerator();
+                        String xmlText = htmlText.toXhtml(mCommentField.getText());
                         String commentText = mCommentField.getText().toString();
-                        Comment comment = new Comment(uid, authorName, commentText);
 
-                        // Push the comment, it will appear in the list
-                        mCommentsReference.push().setValue(comment);
+                        writeNewComment(uid, authorName, commentText, xmlText, null, null);
 
                         // Clear the field
                         mCommentField.setText(null);
@@ -278,6 +278,20 @@ public class NewCommentActivity extends BaseActivity implements View.OnClickList
         mCommentButton.setClickable(true);
         finish();
         //  mCommentButton.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+    }
+
+    private void writeNewComment(String uid, String authorName, String commentText, String xmlText, String downloadImageURL, String downloadPdfURL) {
+        // Create new post at /user-posts/$userid/$postid and at
+        // /posts/$postid simultaneously
+        Comment comment = new Comment(uid, authorName, commentText, xmlText, downloadImageURL, downloadPdfURL);
+
+        Map<String, Object> commentValues = comment.toMap();
+
+
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/post-comments/" + mPostKey + "/" + key, commentValues);
+
+        FirebaseDatabase.getInstance().getReference().updateChildren(childUpdates);
     }
 
     @Override

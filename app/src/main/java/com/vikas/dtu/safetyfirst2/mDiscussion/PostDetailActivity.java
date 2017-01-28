@@ -463,7 +463,10 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
             Comment comment = mComments.get(position);
             holder.authorView.setText(comment.author);
           //  holder.bodyView.setText(comment.text);
-            setHyperlinkText(holder.bodyView,comment.text);
+            if (comment.xmlText == null)
+                setHyperlinkText(holder.bodyView,comment.text);
+            else
+                setHyperlinkText(holder.bodyView,comment.xmlText);
 
         }
 
