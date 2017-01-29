@@ -339,6 +339,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
 
         public TextView authorView;
         public TextView bodyView;
+        public ImageView commentImage;
         //TODO add upvotes and downvotes round_blue_dark
 
         public CommentViewHolder(View itemView) {
@@ -346,6 +347,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
 
             authorView = (TextView) itemView.findViewById(R.id.comment_author);
             bodyView = (TextView) itemView.findViewById(R.id.comment_body);
+            commentImage = (ImageView) itemView.findViewById(R.id.comment_image);
         }
     }
 
@@ -468,6 +470,11 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
                 setHyperlinkText(holder.bodyView,comment.text);
             else
                 setHyperlinkText(holder.bodyView,comment.xmlText);
+
+            if(comment.image != null){
+                holder.commentImage.setVisibility(View.VISIBLE);
+                Glide.with(mContext).load(comment.image).into(holder.commentImage);
+            }
 
         }
 
