@@ -32,6 +32,7 @@
         android:orientation="horizontal">
 
         <ImageButton
+            android:id="@+id/image_upload_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="@dimen/md_keylines"
@@ -41,6 +42,7 @@
             android:src="@drawable/ic_photo_camera_white_24dp" />
 
         <ImageButton
+            android:id="@+id/link_attach_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/md_keylines"
@@ -52,6 +54,7 @@
             android:visibility="gone" />
 
         <ImageButton
+            android:id="@+id/file_upload_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/md_keylines"

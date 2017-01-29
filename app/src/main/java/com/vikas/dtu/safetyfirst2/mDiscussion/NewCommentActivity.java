@@ -69,9 +69,11 @@ public class NewCommentActivity extends BaseActivity implements View.OnClickList
     private RichEditText mCommentField;
     private Button mCommentButton;
 
+    private DatabaseReference mDatabase;
     private DatabaseReference mCommentsReference;
     private String mPostKey;
     private FirebaseStorage storage;
+    private DatabaseReference mAttachmentsReference;
 
     private Button mBoldButton;
     private Button mItalicButton;
@@ -80,14 +82,16 @@ public class NewCommentActivity extends BaseActivity implements View.OnClickList
     private String key = null;
     private String path;
     private Uri uriSavedImage;
-    private String imagePath = null;
+    String imagePath = null, pdfPath = null, attachLink = null;
+    String downloadImageURL = null, downloadVideoURL = null, downloadPdfURL = null;
 
     private static final int REQUEST_CAMERA = 1;
     private static final int SELECT_IMAGE = 2;
+    private static final int SELECT_PDF = 3;
     private static final int ASK_MULTIPLE_PERMISSION_REQUEST_CODE = 5;
+    private int FILE_ATTACH = 2, IMAGE_ATTACH = 3, VIDEO_ATTACH = 4;
 
     private String URL = "gs://safetyfirst-aec72.appspot.com/";
-    String downloadImageURL = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,8 +99,6 @@ public class NewCommentActivity extends BaseActivity implements View.OnClickList
         setContentView(R.layout.activity_new_comment);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        storage = FirebaseStorage.getInstance();
 
         mCommentField = (RichEditText) findViewById(R.id.editor);
         mCommentButton = (Button) findViewById(R.id.button_post_comment);
@@ -113,8 +115,10 @@ public class NewCommentActivity extends BaseActivity implements View.OnClickList
         if (mPostKey == null) {
             throw new IllegalArgumentException("Must pass EXTRA_POST_KEY");
         }
-        mCommentsReference = FirebaseDatabase.getInstance().getReference()
-                .child("post-comments").child(mPostKey);
+        storage = FirebaseStorage.getInstance();
+        mDatabase =  FirebaseDatabase.getInstance().getReference();
+        mCommentsReference = mDatabase.child("post-comments").child(mPostKey);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Add Answer");
     }
@@ -135,8 +139,10 @@ public class NewCommentActivity extends BaseActivity implements View.OnClickList
             case R.id.button_post_comment:
                 if (!mCommentField.getText().toString().trim().equals("")) {
                     key = mCommentsReference.push().getKey();
+                    mAttachmentsReference = FirebaseDatabase.getInstance().getReference().child("comment-attachments").child(mPostKey).child(key);
                     postComment();
-                    //if (imagePath != null) uploadImage();
+                    if (imagePath != null) uploadImage();
+                    if (pdfPath != null) uploadPDF();
                 } else
                     Toast.makeText(this, "Write valid answer.", Toast.LENGTH_SHORT).show();
                 break;
@@ -153,47 +159,47 @@ public class NewCommentActivity extends BaseActivity implements View.OnClickList
         }
     }
 
-//    public void uploadImage() {
-//        Uri file = Uri.fromFile(new File(imagePath));
-//        /// upload destination. change according to your needs
-//        UploadTask uploadTask = storage.getReferenceFromUrl(URL).child(getUid() + "/image/" + file.getLastPathSegment()).putFile(file);
-//        uploadTask.addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception exception) {
-//                // Handle unsuccessful uploads
-//                Toast.makeText(getBaseContext(), "Failed", Toast.LENGTH_SHORT).show();
-//            }
-//        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//            @Override
-//            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-//
-//                Uri downloadUrl = taskSnapshot.getDownloadUrl();
-//
-//                downloadImageURL = String.valueOf(downloadUrl);
-//                assert downloadUrl != null;
-//                Toast.makeText(getBaseContext(), "Image Uploaded", Toast.LENGTH_SHORT).show();
-//                Intent intent = new Intent();
-//                intent.putExtra("DOWNLOAD_URI", downloadUrl);
-//                setResult(RESULT_OK, intent);
-//
-//                Map<String, Object> imageAttach = new HashMap<>();
-//                imageAttach.put("/post-comments-new/" + mPostKey + "/image/", downloadImageURL); // TODO : POSTS ?? Need to add comments
-//                mDatabase.updateChildren(imageAttach);
-//
-//                pushNode(IMAGE_ATTACH, downloadImageURL);
-//
-//                finish();
-//
-//            }
-//        });
-//    }
+    public void uploadImage() {
+        Uri file = Uri.fromFile(new File(imagePath));
+        /// upload destination. change according to your needs
+        UploadTask uploadTask = storage.getReferenceFromUrl(URL).child(getUid() + "/image/" + file.getLastPathSegment()).putFile(file);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle unsuccessful uploads
+                Toast.makeText(getBaseContext(), "Failed", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+
+                Uri downloadUrl = taskSnapshot.getDownloadUrl();
+
+                downloadImageURL = String.valueOf(downloadUrl);
+                assert downloadUrl != null;
+                Toast.makeText(getBaseContext(), "Image Uploaded", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent();
+                intent.putExtra("DOWNLOAD_URI", downloadUrl);
+                setResult(RESULT_OK, intent);
+
+                Map<String, Object> imageAttach = new HashMap<>();
+                imageAttach.put("/post-comments/" + mPostKey + "/" + key + "/image/", downloadImageURL);
+                mDatabase.updateChildren(imageAttach);
+
+                pushNode(IMAGE_ATTACH, downloadImageURL);
+
+                finish();
+
+            }
+        });
+    }
 
     private void postComment() {
         mCommentButton.setClickable(false);
         mCommentButton.setBackgroundColor(getResources().getColor(R.color.grey));
         final String uid = getUid();
-        FirebaseDatabase.getInstance().getReference().child("users").child(uid)
+        mDatabase.child("users").child(uid)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -206,13 +212,13 @@ public class NewCommentActivity extends BaseActivity implements View.OnClickList
                         String xmlText = htmlText.toXhtml(mCommentField.getText());
                         String commentText = mCommentField.getText().toString();
 
-                        writeNewComment(uid, authorName, commentText, xmlText, null, null);
+                        writeNewComment(uid, authorName, commentText, xmlText, downloadImageURL, downloadPdfURL);
 
                         // Clear the field
                         mCommentField.setText(null);
 
                         // Add post-key to local DB to check for notification //
-                        final DatabaseReference postNotifyRef = FirebaseDatabase.getInstance().getReference().child("post-notify");
+                        final DatabaseReference postNotifyRef = mDatabase.child("post-notify");
                         final Realm realm = Realm.getDefaultInstance();
                         PostNotify postNotify = realm.where(PostNotify.class).equalTo("postKey", mPostKey).findFirst();
                         if (postNotify == null) {
@@ -276,6 +282,10 @@ public class NewCommentActivity extends BaseActivity implements View.OnClickList
                     }
                 });
         mCommentButton.setClickable(true);
+
+        if (imagePath != null || pdfPath != null)
+            return;
+
         finish();
         //  mCommentButton.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
     }
@@ -291,7 +301,46 @@ public class NewCommentActivity extends BaseActivity implements View.OnClickList
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/post-comments/" + mPostKey + "/" + key, commentValues);
 
-        FirebaseDatabase.getInstance().getReference().updateChildren(childUpdates);
+        mDatabase.updateChildren(childUpdates);
+    }
+
+    public void uploadPDF() {
+        Uri file = Uri.fromFile(new File(pdfPath));
+        /// upload destination. change according to your needs
+        UploadTask uploadTask = storage.getReferenceFromUrl(URL).child(getUid() + "/pdf/" + file.getLastPathSegment()).putFile(file);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle unsuccessful uploads
+                Toast.makeText(getBaseContext(), "Failed", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+
+                Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                assert downloadUrl != null;
+                Toast.makeText(getBaseContext(), "PDF uploaded", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent();
+                intent.putExtra("DOWNLOAD_URI", downloadUrl);
+                setResult(RESULT_OK, intent);
+                pushNode(FILE_ATTACH, String.valueOf(downloadUrl));
+                finish();
+            }
+        });
+    }
+
+    public void pushNode(int ID, String AttachUrl) {
+        String type;
+
+        if (ID == FILE_ATTACH) {
+            type = "FILE_ATTACH";
+        } else if (ID == IMAGE_ATTACH) {
+            type = "IMAGE_ATTACH";
+        } else type = "null";
+
+        mAttachmentsReference.child(type).setValue(AttachUrl);
     }
 
     @Override
@@ -317,6 +366,9 @@ public class NewCommentActivity extends BaseActivity implements View.OnClickList
                     imagePath = cursor.getString(index);
                 }
                 Toast.makeText(this, imagePath, Toast.LENGTH_SHORT).show();
+            } else if (requestCode == SELECT_PDF) {
+                pdfPath = data.getData().getPath();
+                Toast.makeText(this, pdfPath, Toast.LENGTH_SHORT).show();
             }
 
 
@@ -532,5 +584,15 @@ public class NewCommentActivity extends BaseActivity implements View.OnClickList
         }
 
         return inSampleSize;
+    }
+
+    public void uploadFile(View view) {
+        pickPDF();
+    }
+
+    private void pickPDF() {
+        Intent pickPdf = new Intent(Intent.ACTION_GET_CONTENT);
+        pickPdf.setType("application/pdf");
+        startActivityForResult(pickPdf, SELECT_PDF);
     }
 }

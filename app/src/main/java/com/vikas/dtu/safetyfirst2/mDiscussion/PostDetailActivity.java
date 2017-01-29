@@ -85,7 +85,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
             + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)";
 
     private DatabaseReference mPostReference, mPostAttachmentsReference, mUserPostReference;
-    private DatabaseReference mCommentsReference;
+    private DatabaseReference mCommentsReference, mCommentsAttachmentReference;
     private ValueEventListener mPostListener;
     private String mPostKey;
     private CommentAdapter mAdapter;
@@ -144,6 +144,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
                 .child("post-comments").child(mPostKey);
         mPostAttachmentsReference = FirebaseDatabase.getInstance().getReference().child("post-attachments").child(mPostKey);
         mUserPostReference = FirebaseDatabase.getInstance().getReference().child("user-posts").child(getUid()).child(mPostKey);
+        mCommentsAttachmentReference = FirebaseDatabase.getInstance().getReference().child("comment-attachments").child(mPostKey);
 
         // Initialize Views
         mAuthorImage = (ImageView) findViewById(R.id.post_author_photo);
@@ -764,6 +765,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
                                 mCommentsReference.removeValue();
                                 mPostAttachmentsReference.removeValue();
                                 mUserPostReference.removeValue();
+                                mCommentsAttachmentReference.removeValue();
 
                                 Realm realm = Realm.getDefaultInstance();
                                 realm.beginTransaction();
