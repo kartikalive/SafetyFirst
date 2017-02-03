@@ -43,7 +43,6 @@ import com.vikas.dtu.safetyfirst2.BaseActivity;
 import com.vikas.dtu.safetyfirst2.R;
 import com.vikas.dtu.safetyfirst2.mData.Comment;
 import com.vikas.dtu.safetyfirst2.mData.Post;
-import com.vikas.dtu.safetyfirst2.mData.User;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -117,6 +116,12 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
 
     private LinearLayoutManager mManager;
 
+    // NEW CODE //
+    private LinearLayoutManager mImageManager;
+    private ArrayList<String> imageList;
+    private RecyclerView mImageRecycler;
+    // //
+
     private Post post;
   //  private int clickcount =0;
 
@@ -160,6 +165,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
 
         mCommentButton = (Button) findViewById(R.id.button_post_comment);
         mCommentsRecycler = (RecyclerView) findViewById(R.id.recycler_comments);
+        mImageRecycler = (RecyclerView) findViewById(R.id.recycler_images);
 
         mCommentButton.setOnClickListener(this);
         mImageButton.setOnClickListener(this);
@@ -173,6 +179,10 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
         mManager.setStackFromEnd(true);
         mCommentsRecycler.setLayoutManager(mManager);
 
+        // NEW CODE //
+        mImageManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        mImageRecycler.setLayoutManager(mImageManager);
+        //  //
     }
 
 
@@ -209,6 +219,17 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
                 mTitleView.setText(post.title);
                // mBodyView.setText(post.body); //Replaced by hyperlink text method in line below.
                 setHyperlinkText(mBodyView, post.body);
+
+                // NEW CODE //
+                // Displaying images list
+                if(post.imageList != null && post.imageList.size() > 1) {
+                    //Toast.makeText(PostDetailActivity.this, "Has Image List", Toast.LENGTH_LONG);
+                    imageList = post.imageList;
+                    mImageView.setVisibility(View.GONE);
+                    mImageRecycler.setVisibility(View.VISIBLE);
+                    mImageRecycler.setAdapter(new ImagesAdapter(PostDetailActivity.this, imageList));
+                }
+                // //
 
                 postLoaded = true;
                 onCreateOptionsMenu(mMenu);
@@ -536,7 +557,6 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
 
     }
 
-
     //Called by Link Button from Layout XML
     public void showLink() {
         mPostReference.child("postLink").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -801,4 +821,44 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
     public void onBackPressed() {
         ActivityCompat.finishAfterTransition(this);
     }
+
+    // NEW CODE //
+    private static class ImageViewHolder extends RecyclerView.ViewHolder {
+
+        public ImageView postImage;
+
+        public ImageViewHolder(View itemView) {
+            super(itemView);
+            postImage = (ImageView) itemView.findViewById(R.id.post_image);
+        }
+    }
+
+    private static class ImagesAdapter extends RecyclerView.Adapter<ImageViewHolder> {
+
+        private Context mContext;
+        private ArrayList<String> imageList;
+
+        public ImagesAdapter(final Context context, ArrayList<String> imageList) {
+            mContext = context;
+            this.imageList = imageList;
+        }
+
+        @Override
+        public ImageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater inflater = LayoutInflater.from(mContext);
+            View view = inflater.inflate(R.layout.post_detail_image, parent, false);
+            return new ImageViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(ImageViewHolder holder, int position) {
+            Glide.with(mContext).load(imageList.get(position)).into(holder.postImage);
+        }
+
+        @Override
+        public int getItemCount() {
+            return imageList.size();
+        }
+    }
+    //
 }

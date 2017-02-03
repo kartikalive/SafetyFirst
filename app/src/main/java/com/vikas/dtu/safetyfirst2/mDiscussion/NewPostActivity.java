@@ -2,6 +2,7 @@ package com.vikas.dtu.safetyfirst2.mDiscussion;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -12,10 +13,16 @@ import android.support.v7.app.ActionBar;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.vikas.dtu.safetyfirst2.BaseActivity;
@@ -37,7 +44,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.vikas.dtu.safetyfirst2.model.PostNotify;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -88,7 +97,13 @@ public class NewPostActivity extends BaseActivity {
     String downloadImageURL = null, downloadVideoURL = null, downloadPdfURL = null;
     ////
 
-    int LINK_ATTACH = 1, FILE_ATTACH = 2, IMAGE_ATTACH = 3, VIDEO_ATTACH = 4;
+    // NEW CODE //
+    private ArrayList<String> images;
+    private ArrayList<String> downloadImageList;
+    private ArrayAdapter<String> imageListAdapter;
+
+    int LINK_ATTACH = 1, FILE_ATTACH = 2, IMAGE_ATTACH = 3, VIDEO_ATTACH = 4, IMAGE_LIST_ATTACH = 5;
+    // //
 
     private GoogleApiClient client;
 
@@ -99,6 +114,7 @@ public class NewPostActivity extends BaseActivity {
     private EditText mTitleField;
     private EditText mBodyField;
     private String mImageUri;
+    private ListView imageListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +134,9 @@ public class NewPostActivity extends BaseActivity {
 
         mTitleField = (EditText) findViewById(R.id.field_title);
         mBodyField = (EditText) findViewById(R.id.field_body);
-
+        // NEW CODE //
+        imageListView = (ListView) findViewById(R.id.image_list);
+        // //
 
         findViewById(R.id.fab_submit_post).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,10 +159,36 @@ public class NewPostActivity extends BaseActivity {
                 post_notify_ref.child(key).child("num_of_stars").setValue(0);
 
                 
-                if (imagePath != null) uploadImage();
+                if (imagePath != null) uploadAllImages();
                 if (pdfPath != null) uploadPDF();
             }
         });
+        // NEW CODE //
+        images = new ArrayList<>();
+        downloadImageList = new ArrayList<>();
+        imageListAdapter = new ArrayAdapter<String>(this, R.layout.add_photos_layout, images) {
+            @NonNull
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                TextView view = (TextView) super.getView(position, convertView, parent);
+                String[] imageUrl = getItem(position).split("/");
+                view.setText(imageUrl[imageUrl.length - 1]);
+                return view;
+            }
+        };
+        imageListView.setAdapter(imageListAdapter);
+        imageListView.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String item = (String) parent.getItemAtPosition(position);
+                images.remove(position);
+                //imageListAdapter.remove(imageListAdapter.getItem(position));
+                imageListAdapter.notifyDataSetChanged();
+                Toast.makeText(NewPostActivity.this, "You selected : " + item, Toast.LENGTH_SHORT).show();
+            }
+        });
+        //  //
+
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
@@ -188,7 +232,9 @@ public class NewPostActivity extends BaseActivity {
                         } else {
                             // Write new post
                             mAttachmentsReference = FirebaseDatabase.getInstance().getReference().child("post-attachments").child(key);
-                            writeNewPost(userId, user.username, title, body, downloadImageURL, user.userImage, downloadVideoURL, downloadPdfURL, attachLink);
+                            // NEW CODE //
+                            writeNewPost(userId, user.username, title, body, downloadImageURL, user.userImage, downloadVideoURL, downloadPdfURL, attachLink, downloadImageList);
+                            //  //
                         }
 
                         // Finish this Activity, back to the stream
@@ -205,11 +251,12 @@ public class NewPostActivity extends BaseActivity {
     }
 
     // [START write_fan_out]
+    // NEW CODE //
     private void writeNewPost(String userId, String username, String title, String body, String downloadImageURL, String authorImageUrl,
-                              String downloadPdfURL, String downloadVideoURL, String attachLink) {
+                              String downloadPdfURL, String downloadVideoURL, String attachLink, ArrayList<String> downloadImageList) {
         // Create new post at /user-posts/$userid/$postid and at
         // /posts/$postid simultaneously
-        Post post = new Post(userId, username, title, body, downloadImageURL, authorImageUrl, downloadPdfURL, attachLink);
+        Post post = new Post(userId, username, title, body, downloadImageURL, authorImageUrl, downloadPdfURL, attachLink, downloadImageList);
         Map<String, Object> postValues = post.toMap();
 
         // Obtaining and adding Keywords for search
@@ -237,6 +284,7 @@ public class NewPostActivity extends BaseActivity {
         }
         mDatabase.updateChildren(childUpdates);
     }
+    //  //
     // [END write_fan_out]
 
     private void startAction() {
@@ -278,19 +326,25 @@ public class NewPostActivity extends BaseActivity {
             if (requestCode == REQUEST_CAMERA) {
                 String filename;
                 filename = compressImage(String.valueOf(uriSavedImage));
-                imagePath = filename;
+                // NEW CODE //
+                addImage(filename);
+                //  //
             //    Toast.makeText(this, imagePath, Toast.LENGTH_SHORT).show();
             } else if (requestCode == SELECT_IMAGE) {
                 Uri selectedImageUri = data.getData();
                 Cursor cursor = getContentResolver().query(selectedImageUri, null, null, null, null);
                 if (cursor == null) {
                     Log.d("response", "NUll");
-                    imagePath = selectedImageUri.getPath();
+                    // NEW CODE //
+                    addImage(selectedImageUri.getPath());
+                    //  //
                 } else {
                     Log.d("response", "Not nUll");
                     cursor.moveToFirst();
                     int index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-                    imagePath = cursor.getString(index);
+                    // NEW CODE //
+                    addImage(cursor.getString(index));
+                    //  //
                 }
                 Toast.makeText(this, imagePath, Toast.LENGTH_SHORT).show();
             } else if (requestCode == SELECT_PDF) {
@@ -539,7 +593,7 @@ public class NewPostActivity extends BaseActivity {
         startActivityForResult(pickVideo, SELECT_VIDEO);
     }
 
-    public void uploadImage() {
+    public void uploadAllImages(){
         Uri file = Uri.fromFile(new File(imagePath));
         /// upload destination. change according to your needs
         UploadTask uploadTask = storage.getReferenceFromUrl(URL).child(getUid() + "/image/" + file.getLastPathSegment()).putFile(file);
@@ -569,11 +623,49 @@ public class NewPostActivity extends BaseActivity {
 
                 pushNode(IMAGE_ATTACH, downloadImageURL);
 
-                finish();
-
+                downloadImageList.add(String.valueOf(downloadUrl));
+                uploadImageList(1);
             }
         });
     }
+
+    // NEW CODE //
+    private void uploadImageList(final int index){
+        if(index == images.size()-1) {
+            Map<String, Object> imageAttach = new HashMap<>();
+            imageAttach.put("/posts/" + key + "/imageList/", downloadImageList);
+            mDatabase.updateChildren(imageAttach);
+            pushNode(IMAGE_LIST_ATTACH, downloadImageList);
+            finish();
+        } else {
+            Uri file = Uri.fromFile(new File(images.get(index)));
+            /// upload destination. change according to your needs
+            UploadTask uploadTask = storage.getReferenceFromUrl(URL).child(getUid() + "/image/" + file.getLastPathSegment()).putFile(file);
+            uploadTask.addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle unsuccessful uploads
+                    Toast.makeText(getBaseContext(), "Failed", Toast.LENGTH_SHORT).show();
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+
+                    Uri downloadUrl = taskSnapshot.getDownloadUrl();
+
+                    downloadImageList.add(String.valueOf(downloadUrl));
+                    assert downloadUrl != null;
+                    Toast.makeText(getBaseContext(), "Image" + index + " Uploaded", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent();
+                    intent.putExtra("DOWNLOAD_URI", downloadUrl);
+                    setResult(RESULT_OK, intent);
+                    uploadImageList(index + 1);
+                }
+            });
+        }
+    }
+    //  //
 
     public void uploadPDF() {
         Uri file = Uri.fromFile(new File(pdfPath));
@@ -602,7 +694,7 @@ public class NewPostActivity extends BaseActivity {
         });
     }
 
-    public void pushNode(int ID, String AttachUrl) {
+    public void pushNode(int ID, Object AttachUrl) {
         String type;
 
         if (ID == LINK_ATTACH) {
@@ -611,6 +703,10 @@ public class NewPostActivity extends BaseActivity {
             type = "FILE_ATTACH";
         } else if (ID == IMAGE_ATTACH) {
             type = "IMAGE_ATTACH";
+        } else if (ID == IMAGE_LIST_ATTACH) {
+            // NEW CODE //
+            type = "IMAGE_LIST_ATTACH";
+            //  //
         } else type = "null";
 
         mAttachmentsReference.child(type).setValue(AttachUrl);
@@ -654,4 +750,17 @@ public class NewPostActivity extends BaseActivity {
     public void uploadFile(View view) {
         pickPDF();
     }
+
+    // NEW CODE //
+    private void addImage(String img){
+        if(imagePath == null)
+            imagePath = img;
+
+        // Update List
+        if (images.size() <= 5) {
+            images.add(img);
+            imageListAdapter.notifyDataSetChanged();
+        }
+    }
+    //  //
 }

@@ -3,6 +3,7 @@ package com.vikas.dtu.safetyfirst2.mData;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,12 +23,15 @@ public class Post {
   //  public String video;
     public String file;
     public String link;
+    // NEW CODE //
+    public ArrayList<String> imageList;
+    //
 
     public Post() {
         // Default constructor required for calls to DataSnapshot.getValue(Post.class)
     }
 
-    public Post(String uid, String author, String title, String body, String image, String authorImageUrl, String file, String link) {
+    public Post(String uid, String author, String title, String body, String image, String authorImageUrl, String file, String link, ArrayList<String> imageList) {
         this.authorImageUrl = authorImageUrl;
         this.uid = uid;
         this.author = author;
@@ -37,6 +41,9 @@ public class Post {
        // this.video = video;
         this.file = file;
         this.link = link;
+        // NEW CODE//
+        this.imageList = imageList;
+        // //
     }
 
     public String getPhotoUrl() {
@@ -57,7 +64,9 @@ public class Post {
         result.put("stars", stars);
         result.put("authorImageUrl", authorImageUrl);
         result.put("postLink", link);
-
+        // NEW CODE //
+        result.put("imageList", imageList);
+        // //
         return result;
     }
     // [END post_to_map]

@@ -3,100 +3,109 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/background"
+    android:orientation="vertical"
     tools:context="com.vikas.dtu.safetyfirst2.mDiscussion.NewPostActivity">
+
     <TextView
-        android:layout_margin="@dimen/md_keylines"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="UPLOAD"
-        android:textStyle="bold"
-        android:textColor="@color/colorAccent"
         android:layout_gravity="center"
-        android:textSize="18sp"/>
+        android:layout_margin="@dimen/md_keylines"
+        android:text="UPLOAD"
+        android:textColor="@color/colorAccent"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:orientation="horizontal">
+
         <ImageButton
-            android:padding="@dimen/md_keylines"
-            android:background="@drawable/round_red_dark"
-            android:layout_marginRight="@dimen/md_keylines"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/md_keylines"
+            android:background="@drawable/round_red_dark"
             android:onClick="uploadImage"
-            android:src="@drawable/ic_photo_camera_white_24dp"/>
+            android:padding="@dimen/md_keylines"
+            android:src="@drawable/ic_photo_camera_white_24dp" />
+
         <ImageButton
-            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/md_keylines"
             android:layout_marginRight="@dimen/md_keylines"
-            android:padding="@dimen/md_keylines"
             android:background="@drawable/round_red_dark"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:onClick="attachLink"
-            android:src="@drawable/ic_link_white_24dp"/>
-        <ImageButton
             android:padding="@dimen/md_keylines"
-            android:background="@drawable/round_red_dark"
+            android:src="@drawable/ic_link_white_24dp"
+            android:visibility="gone" />
+
+        <ImageButton
             android:layout_width="wrap_content"
-            android:layout_marginLeft="@dimen/md_keylines"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/md_keylines"
+            android:background="@drawable/round_red_dark"
             android:onClick="uploadFile"
-            android:src="@drawable/ic_attach_file_white_24dp"/>
+            android:padding="@dimen/md_keylines"
+            android:src="@drawable/ic_attach_file_white_24dp" />
     </LinearLayout>
 
     <EditText
         android:id="@+id/field_title"
-        android:background="@drawable/edit_text_style"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="@dimen/md_keylines"
-        android:layout_marginRight="15dp"
-        android:layout_centerVertical="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="@dimen/md_keylines"
+        android:background="@drawable/edit_text_style"
+        android:elevation="@dimen/md_keylines"
         android:ellipsize="start"
         android:gravity="center"
-        android:padding="@dimen/md_keylines"
-        android:inputType="text"
-        android:elevation="@dimen/md_keylines"
         android:hint="@string/title"
-        android:maxLines="1" />
+        android:inputType="text"
+        android:maxLines="1"
+        android:padding="@dimen/md_keylines" />
 
     <EditText
         android:id="@+id/field_body"
-        android:padding="@dimen/md_keylines"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/edit_text_style"
         android:layout_marginBottom="@dimen/md_keylines"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginTop="@dimen/md_keylines"
+        android:background="@drawable/edit_text_style"
+        android:elevation="@dimen/md_keylines"
+        android:gravity="center"
         android:hint="@string/write_your_post"
         android:inputType="textMultiLine"
-        android:gravity="center"
-        android:lines="10"
+        android:lines="5"
         android:maxLines="10"
-        android:elevation="@dimen/md_keylines"
+        android:padding="@dimen/md_keylines"
         android:scrollHorizontally="false" />
-
 
     <Button
         android:id="@+id/fab_submit_post"
         android:layout_width="match_parent"
-        android:layout_gravity="center"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_marginLeft="40dp"
         android:layout_marginRight="40dp"
-       android:text="POST"
         android:background="@drawable/round_red_dark"
+        android:text="POST"
         android:textColor="@color/white"
         tools:ignore="RtlHardcoded" />
 
 
-
+    <!--NEW CODE-->
+    <ListView
+        android:id="@+id/image_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <!-- -->
 
 </LinearLayout>
