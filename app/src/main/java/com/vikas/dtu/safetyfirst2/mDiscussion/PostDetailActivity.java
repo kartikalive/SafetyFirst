@@ -37,18 +37,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.squareup.picasso.Picasso;
-import com.vikas.dtu.safetyfirst2.BaseActivity;
-import com.vikas.dtu.safetyfirst2.R;
-import com.vikas.dtu.safetyfirst2.mData.Comment;
-import com.vikas.dtu.safetyfirst2.mData.Post;
-import com.vikas.dtu.safetyfirst2.mData.User;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
+import com.vikas.dtu.safetyfirst2.BaseActivity;
+import com.vikas.dtu.safetyfirst2.R;
+import com.vikas.dtu.safetyfirst2.mData.Comment;
+import com.vikas.dtu.safetyfirst2.mData.Post;
+import com.vikas.dtu.safetyfirst2.mData.User;
 import com.vikas.dtu.safetyfirst2.mWebview.WebViewActivity;
 import com.vikas.dtu.safetyfirst2.model.PostNotify;
 
@@ -123,7 +123,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
         ActionBar ab = getSupportActionBar();
 
         // Enable the Up round_blue_dark
-      //  ab.setDisplayHomeAsUpEnabled(true);
+        //  ab.setDisplayHomeAsUpEnabled(true);
 
 
         // Get post key from intent
@@ -149,7 +149,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
 
         mImageButton = (ImageButton) findViewById(R.id.image_btn);
         mFileButton = (ImageButton) findViewById(R.id.file_btn);
-       // mVideoButton = (Button) findViewById(R.id.video_btn);
+        // mVideoButton = (Button) findViewById(R.id.video_btn);
         mLinkButton = (ImageButton) findViewById(R.id.link_btn);
 
         mCommentField = (EditText) findViewById(R.id.field_comment_text);
@@ -159,9 +159,10 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
         mCommentButton.setOnClickListener(this);
         mImageButton.setOnClickListener(this);
         mFileButton.setOnClickListener(this);
-       // mVideoButton.setOnClickListener(this);
+        // mVideoButton.setOnClickListener(this);
         mLinkButton.setOnClickListener(this);
-       // mCommentsRecycler.setLayoutManager(new LinearLayoutManager(this));
+        mImageView.setOnClickListener(this);
+        // mCommentsRecycler.setLayoutManager(new LinearLayoutManager(this));
 
         mManager = new LinearLayoutManager(this);
         mManager.setReverseLayout(true);
@@ -169,6 +170,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
         mCommentsRecycler.setLayoutManager(mManager);
 
     }
+
 
 
     @Override
@@ -185,7 +187,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
                 // [START_EXCLUDE]
                 if (post.getPhotoUrl() == null) {
                     mAuthorImage.setImageDrawable(ContextCompat.getDrawable(getBaseContext(),
-                            R.drawable.ic_action_account_circle_40));
+                           R.drawable.ic_action_account_circle_40));
                 } else {
                     Glide.with(getBaseContext())
                             .load(post.getPhotoUrl())
@@ -200,6 +202,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
                 } else {
                     mImageView.setVisibility(View.GONE);
                 }
+
                 mAuthorView.setText(post.author);
                 mTitleView.setText(post.title);
                // mBodyView.setText(post.body); //Replaced by hyperlink text method in line below.
@@ -311,6 +314,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
                 showImage();
               //  Toast.makeText(this, "image btn clicked", Toast.LENGTH_SHORT).show();
                 break;
+
             case R.id.file_btn:
                 showFile();
             //    Toast.makeText(this, "file btn clicked", Toast.LENGTH_SHORT).show();
@@ -319,6 +323,10 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
                 showVideo();
                 Toast.makeText(this, "video btn clicked", Toast.LENGTH_SHORT).show();
                 break;*/
+            case R.id.post_image:
+                enlargeImage();
+                break;
+
             case R.id.link_btn:
                 showLink();
              //   Toast.makeText(this, "link btn clicked", Toast.LENGTH_SHORT).show();
@@ -449,6 +457,7 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                     Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+
 
                     // A new comment has been added, add it to the displayed list
                     Comment comment = dataSnapshot.getValue(Comment.class);
@@ -652,6 +661,20 @@ public class PostDetailActivity extends BaseActivity implements View.OnClickList
             }
         });
     }
+
+        private ImageView post_detail_image;
+    public void enlargeImage()
+    {
+        Dialog imageDialog = new Dialog(PostDetailActivity.this);
+        imageDialog.setContentView(R.layout.image_dialog_box);
+
+        post_detail_image = (ImageView)imageDialog.findViewById(R.id.post_detail_image);
+        post_detail_image.setImageDrawable(mImageView.getDrawable());
+        imageDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        imageDialog.setCanceledOnTouchOutside(true);
+        imageDialog.show();
+               }
+
 
     //Called by Image Button from Layout XML
     public void showImage() {

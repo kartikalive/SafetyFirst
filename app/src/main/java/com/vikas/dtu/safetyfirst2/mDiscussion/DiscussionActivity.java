@@ -26,10 +26,10 @@ public class DiscussionActivity extends BaseActivity {
     private ViewPager mViewPager;
 
     private final int[] tabIcons =  {
-            R.drawable.discussions,
+            R.drawable.ic_group_black_24dp,
             R.drawable.myposts,
-            R.drawable.bookmarks,
-            R.drawable.write_que};
+            R.drawable.ic_bookmark_black_24dp,
+            R.drawable.ic_border_color_black_24dp};
     private TabLayout tabLayout;
 
     @Override

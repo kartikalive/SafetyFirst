@@ -47,6 +47,7 @@ public class KnowItMain extends AppCompatActivity {
         myList = (GridView)findViewById(R.id.my_list);
         myList.setAdapter(new FirstCustAdapter(this));
         myList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+         //--------------------------------Code changed----------------------------------
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int i, long l) {
 
@@ -58,7 +59,7 @@ public class KnowItMain extends AppCompatActivity {
                 mTitle.setText(clicked_title);
                 CardView info = (CardView)openDialog.findViewById(R.id.info_icon);
                 CardView types = (CardView)openDialog.findViewById(R.id.types_icon);
-
+                openDialog.setCanceledOnTouchOutside(true);
                 info.setOnClickListener(
                         new View.OnClickListener() {
                             @Override
@@ -88,7 +89,7 @@ public class KnowItMain extends AppCompatActivity {
 
 
 }
-
+//---------------------------------------------------------------------------------------------
 class Cards{
     public String title;
     public Drawable image;

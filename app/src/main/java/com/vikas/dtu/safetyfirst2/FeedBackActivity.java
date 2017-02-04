@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.Toast;
 
 import com.vikas.dtu.safetyfirst2.mData.Feedback;
@@ -43,9 +44,9 @@ public class FeedBackActivity extends BaseActivity implements View.OnClickListen
     private ImageView mGood;
     private ImageView mSatisfactory;
     private ImageView mBad;
-    private ImageView mStars;
+    //private ImageView mStars;
     private ImageView mSubmit;
-
+    private RatingBar mRatingBar;
     String title = "nothing";
 
     boolean very_good = false;
@@ -75,14 +76,60 @@ public class FeedBackActivity extends BaseActivity implements View.OnClickListen
         mSatisfactory = (ImageView) findViewById(R.id.satisfactory);
         mBad = (ImageView) findViewById(R.id.bad);
         mSubmit = (ImageView) findViewById(R.id.submit);
-        mStars = (ImageView) findViewById(R.id.stars);
+        mRatingBar = (RatingBar)findViewById(R.id.ratingBar);
+       // mStars = (ImageView) findViewById(R.id.stars);
         mVeryGood.setOnClickListener(this);
         mGood.setOnClickListener(this);
         mSatisfactory.setOnClickListener(this);
         mBad.setOnClickListener(this);
        mSubmit.setOnClickListener(this);
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
+        //  ----------------------------------Code changed---------------------------------------------
+        mRatingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                if( rating==1)
+                {
+                    title = "Bad";
+                    mVeryGood.setImageResource(R.drawable.very_good);
+                    mGood.setImageResource(R.drawable.good);
+                    mSatisfactory.setImageResource(R.drawable.satisfactory);
+                    mBad.setImageResource(R.drawable.bad_pressed_r);
+                }
+
+                if(rating==2)
+                {
+                    title = "Satisfactory";
+                    mVeryGood.setImageResource(R.drawable.very_good);
+                    mGood.setImageResource(R.drawable.good);
+                    mSatisfactory.setImageResource(R.drawable.satisfactory_pressed);
+                    mBad.setImageResource(R.drawable.bad);
+                }
+
+                if(rating==3)
+                {
+                    title = "Good";
+                    mVeryGood.setImageResource(R.drawable.very_good);
+                    mGood.setImageResource(R.drawable.good_pressed);
+                    mSatisfactory.setImageResource(R.drawable.satisfactory);
+                    mBad.setImageResource(R.drawable.bad);
+                }
+
+                if(rating==4)
+                {
+                    title = "Very Good";
+                    mVeryGood.setImageResource(R.drawable.pressed_very_good);
+                    mGood.setImageResource(R.drawable.good);
+                    mSatisfactory.setImageResource(R.drawable.satisfactory);
+                    mBad.setImageResource(R.drawable.bad);
+                }
+            }
+        });
+
+        // ----------------------------------------------------------------------------------------------
     }
+
 
     private void submitPost() {
 
@@ -230,34 +277,43 @@ public class FeedBackActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void setView() {
-        if(very_good){
-            title="Very Good";
+        if (very_good) {
+            title = "Very Good";
             mVeryGood.setImageResource(R.drawable.pressed_very_good);
             mGood.setImageResource(R.drawable.good);
             mSatisfactory.setImageResource(R.drawable.satisfactory);
             mBad.setImageResource(R.drawable.bad);
-            mStars.setImageResource(R.drawable.stars4);
+            mRatingBar.setRating(4);
+            //   mStars.setImageResource(R.drawable.stars4);
 
         }
-        if(good){
-            title="Good";
+        if (good) {
+            title = "Good";
             mVeryGood.setImageResource(R.drawable.very_good);
             mGood.setImageResource(R.drawable.good_pressed);
             mSatisfactory.setImageResource(R.drawable.satisfactory);
             mBad.setImageResource(R.drawable.bad);
-            mStars.setImageResource(R.drawable.stars3);}
-        if(satisfactory){
-            title="Satisfactory";
+            mRatingBar.setRating(3);
+            // mStars.setImageResource(R.drawable.stars3);
+        }
+        if (satisfactory) {
+            title = "Satisfactory";
             mVeryGood.setImageResource(R.drawable.very_good);
             mGood.setImageResource(R.drawable.good);
             mSatisfactory.setImageResource(R.drawable.satisfactory_pressed);
             mBad.setImageResource(R.drawable.bad);
-            mStars.setImageResource(R.drawable.stars2);}
-        if(bad){title="Bad";
+            mRatingBar.setRating(2);
+            //mStars.setImageResource(R.drawable.stars2);
+        }
+        if (bad) {
+            title = "Bad";
             mVeryGood.setImageResource(R.drawable.very_good);
             mGood.setImageResource(R.drawable.good);
             mSatisfactory.setImageResource(R.drawable.satisfactory);
             mBad.setImageResource(R.drawable.bad_pressed_r);
-            mStars.setImageResource(R.drawable.stars1);}
+            mRatingBar.setRating(1);
+            //mStars.setImageResource(R.drawable.stars1);}
+        }
+
     }
-}
+    }
